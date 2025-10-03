@@ -9,7 +9,6 @@ use App\Http\Resources\CompanyResource;
 use App\Models\Company;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CompanyController extends Controller
 {
@@ -18,7 +17,7 @@ class CompanyController extends Controller
         $this->authorizeResource(Company::class, 'company');
     }
 
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): JsonResponse
     {
         $companies = Company::query()
             ->with('municipality.state')
@@ -28,34 +27,33 @@ class CompanyController extends Controller
             ->paginate($request->integer('per_page', 15))
             ->withQueryString();
 
-        return CompanyResource::collection($companies);
+        return $this->successResponse([
+            'items' => CompanyResource::collection($companies->getCollection()),
+            'meta' => $this->paginationMeta($companies),
+        ], 'Lista de empresas obtida com sucesso.');
     }
 
     public function store(StoreCompanyRequest $request): JsonResponse
     {
         $company = Company::create($request->validated())->load('municipality.state');
 
-        return CompanyResource::make($company)
-            ->response()
-            ->setStatusCode(201);
+        return $this->successResponse(CompanyResource::make($company), 'Empresa criada com sucesso.', 201);
     }
 
-    public function show(Company $company): CompanyResource
+    public function show(Company $company): JsonResponse
     {
-        return CompanyResource::make($company->loadMissing('municipality.state'));
+        return $this->successResponse(CompanyResource::make($company->loadMissing('municipality.state')), 'Empresa localizada com sucesso.');
     }
 
-    public function update(UpdateCompanyRequest $request, Company $company): CompanyResource
+    public function update(UpdateCompanyRequest $request, Company $company): JsonResponse
     {
         $company->update($request->validated());
 
-        return CompanyResource::make($company->load('municipality.state'));
+        return $this->successResponse(CompanyResource::make($company->load('municipality.state')), 'Empresa atualizada com sucesso.');
     }
 
     public function destroy(Company $company): JsonResponse
     {
-        $company->delete();
-
-        return response()->json(null, 204);
+        return $this->deleteModel(fn () => $company->delete(), 'Empresa removida com sucesso.');
     }
 }

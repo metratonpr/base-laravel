@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateStateRequest;
 use App\Http\Resources\StateResource;
 use App\Models\State;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class StateController extends Controller
 {
@@ -17,38 +16,38 @@ class StateController extends Controller
         $this->authorizeResource(State::class, 'state');
     }
 
-    public function index(): AnonymousResourceCollection
+    public function index(): JsonResponse
     {
         $states = State::query()->orderBy('name')->get();
 
-        return StateResource::collection($states);
+        return $this->successResponse(StateResource::collection($states), 'Lista de estados obtida com sucesso.');
     }
 
     public function store(StoreStateRequest $request): JsonResponse
     {
         $state = State::create($request->validated());
 
-        return StateResource::make($state)
-            ->response()
-            ->setStatusCode(201);
+        return $this->successResponse(StateResource::make($state), 'Estado criado com sucesso.', 201);
     }
 
-    public function show(State $state): StateResource
+    public function show(State $state): JsonResponse
     {
-        return StateResource::make($state);
+        return $this->successResponse(StateResource::make($state), 'Estado localizado com sucesso.');
     }
 
-    public function update(UpdateStateRequest $request, State $state): StateResource
+    public function update(UpdateStateRequest $request, State $state): JsonResponse
     {
         $state->update($request->validated());
 
-        return StateResource::make($state);
+        return $this->successResponse(StateResource::make($state), 'Estado atualizado com sucesso.');
     }
 
     public function destroy(State $state): JsonResponse
     {
-        $state->delete();
+        if ($state->municipalities()->exists()) {
+            return $this->errorResponse('N?o ? poss?vel remover o estado porque existem munic?pios vinculados.', null, 409);
+        }
 
-        return response()->json(null, 204);
+        return $this->deleteModel(fn () => $state->delete(), 'Estado removido com sucesso.');
     }
 }

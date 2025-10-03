@@ -46,8 +46,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (ValidationException $exception, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json([
+                    'status' => 'error',
                     'message' => __('messages.validation_failed'),
-                    'errors' => $exception->errors(),
+                    'data' => [
+                        'errors' => $exception->errors(),
+                    ],
                 ], 422);
             }
         });
@@ -55,7 +58,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (AuthenticationException $exception, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json([
+                    'status' => 'error',
                     'message' => __('messages.unauthenticated'),
+                    'data' => null,
                 ], 401);
             }
         });
@@ -63,7 +68,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (AuthorizationException $exception, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json([
+                    'status' => 'error',
                     'message' => __('messages.unauthorized'),
+                    'data' => null,
                 ], 403);
             }
         });
@@ -71,7 +78,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (ModelNotFoundException $exception, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json([
+                    'status' => 'error',
                     'message' => __('messages.not_found'),
+                    'data' => null,
                 ], 404);
             }
         });

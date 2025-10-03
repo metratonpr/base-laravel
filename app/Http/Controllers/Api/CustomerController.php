@@ -9,7 +9,6 @@ use App\Http\Resources\CustomerResource;
 use App\Models\Customer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CustomerController extends Controller
 {
@@ -18,7 +17,7 @@ class CustomerController extends Controller
         $this->authorizeResource(Customer::class, 'customer');
     }
 
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): JsonResponse
     {
         $customers = Customer::query()
             ->with('municipality.state')
@@ -29,34 +28,33 @@ class CustomerController extends Controller
             ->paginate($request->integer('per_page', 15))
             ->withQueryString();
 
-        return CustomerResource::collection($customers);
+        return $this->successResponse([
+            'items' => CustomerResource::collection($customers->getCollection()),
+            'meta' => $this->paginationMeta($customers),
+        ], 'Lista de clientes obtida com sucesso.');
     }
 
     public function store(StoreCustomerRequest $request): JsonResponse
     {
         $customer = Customer::create($request->validated())->load('municipality.state');
 
-        return CustomerResource::make($customer)
-            ->response()
-            ->setStatusCode(201);
+        return $this->successResponse(CustomerResource::make($customer), 'Cliente criado com sucesso.', 201);
     }
 
-    public function show(Customer $customer): CustomerResource
+    public function show(Customer $customer): JsonResponse
     {
-        return CustomerResource::make($customer->loadMissing('municipality.state'));
+        return $this->successResponse(CustomerResource::make($customer->loadMissing('municipality.state')), 'Cliente localizado com sucesso.');
     }
 
-    public function update(UpdateCustomerRequest $request, Customer $customer): CustomerResource
+    public function update(UpdateCustomerRequest $request, Customer $customer): JsonResponse
     {
         $customer->update($request->validated());
 
-        return CustomerResource::make($customer->load('municipality.state'));
+        return $this->successResponse(CustomerResource::make($customer->load('municipality.state')), 'Cliente atualizado com sucesso.');
     }
 
     public function destroy(Customer $customer): JsonResponse
     {
-        $customer->delete();
-
-        return response()->json(null, 204);
+        return $this->deleteModel(fn () => $customer->delete(), 'Cliente removido com sucesso.');
     }
 }

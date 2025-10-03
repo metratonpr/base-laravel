@@ -36,12 +36,13 @@ class AuthController extends Controller
 
         $token = $user->createToken($tokenName, $abilities);
 
-        return response()->json([
+        return $this->successResponse([
             'token' => $token->plainTextToken,
             'token_type' => 'Bearer',
+            'expires_in' => config('sanctum.expiration'),
             'abilities' => $abilities,
             'user' => UserResource::make($user->loadMissing(['roles', 'permissions'])),
-        ], 201);
+        ], 'Autentica??o realizada com sucesso.', 201);
     }
 
     /**
@@ -51,7 +52,7 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()?->delete();
 
-        return response()->json(null, 204);
+        return $this->successResponse(null, 'Sess?o encerrada com sucesso.');
     }
 
     /**
@@ -59,8 +60,8 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        return response()->json([
+        return $this->successResponse([
             'user' => UserResource::make($request->user()->loadMissing(['roles', 'permissions'])),
-        ]);
+        ], 'Dados do usu?rio autenticado.');
     }
 }

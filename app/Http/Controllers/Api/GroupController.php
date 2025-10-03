@@ -7,7 +7,7 @@ use App\Http\Requests\GroupRequest;
 use App\Http\Resources\GroupResource;
 use App\Models\Group;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Request;
 
 class GroupController extends Controller
 {
@@ -19,11 +19,17 @@ class GroupController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): JsonResponse
     {
-        $groups = Group::query()->orderBy('name')->paginate();
+        $groups = Group::query()
+            ->orderBy('name')
+            ->paginate($request->integer('per_page', 15))
+            ->withQueryString();
 
-        return GroupResource::collection($groups);
+        return $this->successResponse([
+            'items' => GroupResource::collection($groups->getCollection()),
+            'meta' => $this->paginationMeta($groups),
+        ], 'Lista de grupos obtida com sucesso.');
     }
 
     /**
@@ -33,27 +39,25 @@ class GroupController extends Controller
     {
         $group = Group::create($request->validated());
 
-        return GroupResource::make($group)
-            ->response()
-            ->setStatusCode(201);
+        return $this->successResponse(GroupResource::make($group), 'Grupo criado com sucesso.', 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Group $group): GroupResource
+    public function show(Group $group): JsonResponse
     {
-        return GroupResource::make($group);
+        return $this->successResponse(GroupResource::make($group), 'Grupo localizado com sucesso.');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(GroupRequest $request, Group $group): GroupResource
+    public function update(GroupRequest $request, Group $group): JsonResponse
     {
         $group->update($request->validated());
 
-        return GroupResource::make($group);
+        return $this->successResponse(GroupResource::make($group), 'Grupo atualizado com sucesso.');
     }
 
     /**
@@ -61,8 +65,6 @@ class GroupController extends Controller
      */
     public function destroy(Group $group): JsonResponse
     {
-        $group->delete();
-
-        return response()->json(null, 204);
+        return $this->deleteModel(fn () => $group->delete(), 'Grupo removido com sucesso.');
     }
 }
