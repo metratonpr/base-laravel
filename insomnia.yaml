@@ -1,0 +1,280 @@
+type: ExportedData
+__export_format: 4
+__export_date: "2025-10-03T17:55:00.000Z"
+__export_source: "insomnia.cli:generated"
+resources:
+  - _id: wrk_rest_api
+    parentId: null
+    modified: 0
+    created: 0
+    name: Base API Workspace
+    description: "Colecao de testes para a API Laravel."
+    scope: collection
+    type: Workspace
+  - _id: env_rest_api_base
+    parentId: wrk_rest_api
+    modified: 0
+    created: 0
+    name: Base Environment
+    data:
+      base_url: "http://localhost/api"
+      admin_email: "admin@example.com"
+      admin_password: "password"
+      bearer_token: ""
+    dataPropertyOrder:
+      '&':
+        - base_url
+        - admin_email
+        - admin_password
+        - bearer_token
+    color: null
+    isPrivate: false
+    metaSortKey: 0
+    type: Environment
+  - _id: fld_auth
+    parentId: wrk_rest_api
+    modified: 0
+    created: 0
+    name: Autenticacao
+    description: "Fluxo de login e verificacao de token."
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -1000000000000
+    type: RequestGroup
+  - _id: fld_groups
+    parentId: wrk_rest_api
+    modified: 0
+    created: 0
+    name: Grupos
+    description: "CRUD dos grupos empresariais."
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -999999999999
+    type: RequestGroup
+  - _id: req_login
+    parentId: fld_auth
+    modified: 0
+    created: 0
+    url: "{{ _.base_url }}/auth/login"
+    name: Login
+    description: "Obtem token Sanctum usando credenciais seedadas."
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "email": "{{ _.admin_email }}",
+          "password": "{{ _.admin_password }}",
+          "device_name": "insomnia-client"
+        }
+    parameters: []
+    headers:
+      - id: pair_login_content_type
+        name: Content-Type
+        value: application/json
+        description: ""
+    authentication: {}
+    metaSortKey: -1000000000000
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    type: Request
+  - _id: req_me
+    parentId: fld_auth
+    modified: 0
+    created: 0
+    url: "{{ _.base_url }}/auth/me"
+    name: Perfil Atual
+    description: "Valida o token retornando os dados do usuario autenticado."
+    method: GET
+    body: {}
+    parameters: []
+    headers:
+      - id: pair_me_bearer
+        name: Authorization
+        value: "Bearer {{ _.bearer_token }}"
+        description: ""
+    authentication: {}
+    metaSortKey: -999999999999
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    type: Request
+  - _id: req_logout
+    parentId: fld_auth
+    modified: 0
+    created: 0
+    url: "{{ _.base_url }}/auth/logout"
+    name: Logout
+    description: "Revoga o token atual do usuario autenticado."
+    method: POST
+    body: {}
+    parameters: []
+    headers:
+      - id: pair_logout_bearer
+        name: Authorization
+        value: "Bearer {{ _.bearer_token }}"
+        description: ""
+    authentication: {}
+    metaSortKey: -999999999998
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    type: Request
+  - _id: req_groups_index
+    parentId: fld_groups
+    modified: 0
+    created: 0
+    url: "{{ _.base_url }}/groups"
+    name: Listar Grupos
+    description: "Lista grupos com paginacao."
+    method: GET
+    body: {}
+    parameters: []
+    headers:
+      - id: pair_groups_index_bearer
+        name: Authorization
+        value: "Bearer {{ _.bearer_token }}"
+        description: ""
+    authentication: {}
+    metaSortKey: -1000000000000
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    type: Request
+  - _id: req_groups_store
+    parentId: fld_groups
+    modified: 0
+    created: 0
+    url: "{{ _.base_url }}/groups"
+    name: Criar Grupo
+    description: "Cria um novo grupo empresarial."
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Tecnologia Avancada",
+          "description": "Grupo criado via Insomnia."
+        }
+    parameters: []
+    headers:
+      - id: pair_groups_store_content_type
+        name: Content-Type
+        value: application/json
+        description: ""
+      - id: pair_groups_store_bearer
+        name: Authorization
+        value: "Bearer {{ _.bearer_token }}"
+        description: ""
+    authentication: {}
+    metaSortKey: -999999999999
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    type: Request
+  - _id: req_groups_show
+    parentId: fld_groups
+    modified: 0
+    created: 0
+    url: "{{ _.base_url }}/groups/{{ group_id }}"
+    name: Detalhar Grupo
+    description: "Busca um grupo pelo ID. Atualize group_id conforme necessario."
+    method: GET
+    body: {}
+    parameters: []
+    headers:
+      - id: pair_groups_show_bearer
+        name: Authorization
+        value: "Bearer {{ _.bearer_token }}"
+        description: ""
+    authentication: {}
+    metaSortKey: -999999999998
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    type: Request
+  - _id: req_groups_update
+    parentId: fld_groups
+    modified: 0
+    created: 0
+    url: "{{ _.base_url }}/groups/{{ group_id }}"
+    name: Atualizar Grupo
+    description: "Atualiza um grupo existente. Substitua group_id pelo ID real."
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Tecnologia Atualizada",
+          "description": "Dados atualizados via Insomnia."
+        }
+    parameters: []
+    headers:
+      - id: pair_groups_update_content_type
+        name: Content-Type
+        value: application/json
+        description: ""
+      - id: pair_groups_update_bearer
+        name: Authorization
+        value: "Bearer {{ _.bearer_token }}"
+        description: ""
+    authentication: {}
+    metaSortKey: -999999999997
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    type: Request
+  - _id: req_groups_delete
+    parentId: fld_groups
+    modified: 0
+    created: 0
+    url: "{{ _.base_url }}/groups/{{ group_id }}"
+    name: Remover Grupo
+    description: "Remove um grupo existente."
+    method: DELETE
+    body: {}
+    parameters: []
+    headers:
+      - id: pair_groups_delete_bearer
+        name: Authorization
+        value: "Bearer {{ _.bearer_token }}"
+        description: ""
+    authentication: {}
+    metaSortKey: -999999999996
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    type: Request
